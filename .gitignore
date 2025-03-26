@@ -1,2 +1,4 @@
 dataset/
 .env
+wandb/
+*.pth
