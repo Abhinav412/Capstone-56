@@ -16,4 +16,4 @@ Data-driven analysis, AI-powered forecasting and strategic recommendations to op
   ```
 
 For accessing the Datasets used for the Project, access the given google drive link-
-https://drive.google.com/drive/folders/1HIw7gVuHe0UZ4oeJHvH1IDmlvHsAY5vC?usp=drive_link
+https://drive.google.com/drive/folders/13qyp5cU5wR9MAfuAhD3h_BBAyKud-Pu4?usp=sharing
