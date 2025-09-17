@@ -1,4 +1,7 @@
+__pycache__/
 dataset/
 .env
 wandb/
 *.pth
+.vscode/
+venv/
