@@ -1,7 +1,7 @@
-from smolagents.tools import tool
 from models.finbert import FinBERTSentiment
 
-@tool
+model_instance = FinBERTSentiment()
+
 def analyze_sentiment(text: str) -> dict:
     """
     Analyze the sentiment of a given text using the FinBERT model.
@@ -12,4 +12,4 @@ def analyze_sentiment(text: str) -> dict:
     Returns:
         dict: A dictionary with sentiment label ('positive', 'neutral', 'negative') and confidence score.
     """
-    return FinBERTSentiment(text)
+    return model_instance.predict(text)
