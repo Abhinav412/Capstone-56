@@ -1,0 +1,14 @@
+[project]
+name = "sentiment-analyser"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dotenv>=0.9.9",
+    "fastapi>=0.120.4",
+    "firecrawl-py>=4.5.0",
+    "torch>=2.9.0",
+    "transformers>=4.57.1",
+    "uvicorn>=0.38.0",
+]

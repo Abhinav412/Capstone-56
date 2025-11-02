@@ -1,0 +1,77 @@
+---
+monitor_trending_topics:
+  description: 'Use Google Trends and multiple search engines to identify 3-5 trending
+    financial topics from {focus_area}. **FIRST: Use Google Trends Financial Tool**
+    to get real trending financial searches with search volume data and trend strength
+    indicators. **SECOND: Cross-reference with SerperDevTool** for current news validation
+    and market relevance. Focus on topics showing sharp upticks in Google Trends search
+    volume, social mentions, or news coverage in the last 24-48 hours. Prioritize
+    topics most likely to have immediate market impact and current news coverage.'
+  expected_output: 'A comprehensive list of 3-5 trending financial topics with: **Google
+    Trends data** (search volume changes, trend strength scores, related queries),
+    **news validation** (current coverage and market relevance), and **impact assessment**
+    (why each topic is trending NOW and its potential market impact). Include both
+    trending topics from Google Trends API and cross-referenced market news.'
+  agent: trends_monitor
+search_news_articles:
+  description: Based on trending topics identified, conduct comprehensive daily news
+    search covering ALL relevant recent articles for each topic. Remove artificial
+    limits - aim for 15-20 articles per topic to ensure complete market coverage.
+    Focus on accessible sources like Economic Times, Mint, Reuters, MoneyControl,
+    Livemint, CNBC, avoiding business-standard.com. Include article titles, URLs,
+    publication dates, and brief summaries.
+  expected_output: A comprehensive list of news articles for each trending topic,
+    including article titles, URLs, publication dates, source names, and brief summaries.
+    No artificial limits - capture all relevant market news for the trading day.
+  agent: news_search_specialist
+  context:
+  - monitor_trending_topics
+scrape_article_content:
+  description: 'Process ALL articles using advanced anti-detection scraping: 1) **For
+    403/blocked sites**: Use StagehandTool (browser-based) to bypass anti-bot measures,
+    2) **For clean markdown extraction**: FirecrawlScrapeWebsiteTool for LLM-friendly
+    content, 3) **Standard fallback**: ScrapeWebsiteTool for accessible sites, 4)
+    **Smart tool selection**: Rotate tools based on previous error patterns, 5) **Enhanced
+    rate limiting**: 5-second delays with exponential backoff for failures, 6) **Success
+    threshold**: minimum 50% before proceeding to sentiment analysis.'
+  expected_output: 'Complete scraping results with: 1) Total articles attempted, 2)
+    Success rate percentage, 3) For successful articles: URL, headline, full content,
+    publication date, source, 4) For failed articles: URL, specific error message,
+    HTTP status, retry attempts. Include batch processing statistics and rate limiting
+    compliance.'
+  agent: web_content_scraper
+  context:
+  - search_news_articles
+finbert_sentiment_analysis:
+  description: "**MANDATORY: Always provide sentiment analysis for ALL articles.**
+    Process: 1) **Try local FinBERT API first** with 3-second delays for each article,
+    2) **If FinBERT API fails**, immediately fallback to built-in LLM analysis, 3)
+    **Never skip articles** - every article must get sentiment analysis using one
+    of these methods, 4) **Generate comprehensive results** with sentiment (positive/negative/neutral),
+    confidence score (0.1-1.0), and key sentiment phrases, 5) **If no articles available**,
+    analyze trending topics for market sentiment."
+  expected_output: 'Complete sentiment analysis results for ALL articles including:
+    sentiment classification, confidence score, key sentiment phrases, method used
+    (finBERT or LLM fallback), and overall market sentiment summary. If finBERT API
+    fails, note it but MUST still provide complete LLM sentiment analysis for every
+    article with specific confidence scores and reasoning.'
+  agent: finbert_sentiment_analyst
+  context:
+  - scrape_article_content
+comprehensive_analysis_report:
+  description: 'Create comprehensive daily market intelligence report consolidating:
+    1) **Trending Topics Analysis** - show actual topics identified and their relevance,
+    2) **Scraping Performance Dashboard** - success rates, failed URLs with specific
+    error handling, 3) **Sentiment Analysis Results** - individual article sentiments
+    and overall market mood, 4) **Data Quality Metrics** - validation of real vs placeholder
+    content, and 5) **Market Impact Summary** - actionable insights for trading decisions.'
+  expected_output: 'Create report using ONLY real data from previous tasks. Include:
+    1) Actual trending topics identified (not generic examples), 2) Exact URLs attempted
+    and results, 3) Real article headlines and sentiment scores, 4) Specific scraping
+    statistics with actual numbers. CRITICAL: If previous tasks contain placeholder/fictional
+    content, highlight data quality issues and recommend re-running with proper data
+    collection rather than including fictional analysis.'
+  agent: financial_data_analyst
+  context:
+  - scrape_article_content
+  - finbert_sentiment_analysis
