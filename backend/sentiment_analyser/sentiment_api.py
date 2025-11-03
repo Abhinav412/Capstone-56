@@ -16,7 +16,8 @@ class SentimentRequest(BaseModel):
     text: str
 
 class SentimentResponse(BaseModel):
-    sentiment: str
+    sentiment: str  # Text label: "negative", "neutral", "positive"
+    sentiment_score: int  # Numeric label: -1, 0, 1
     confidence: float
     scores: dict
 
@@ -65,6 +66,13 @@ except Exception as e:
     print(f"❌ Error loading model: {e}")
     raise
 
+# Sentiment mapping for integration
+SENTIMENT_MAPPING = {
+    "negative": -1,
+    "neutral": 0,
+    "positive": 1
+}
+
 @app.post("/analyze-sentiment", response_model=SentimentResponse)
 async def analyze_sentiment(request: SentimentRequest):
     """
@@ -74,7 +82,11 @@ async def analyze_sentiment(request: SentimentRequest):
         request: SentimentRequest containing text to analyze
         
     Returns:
-        SentimentResponse with sentiment label, confidence, and scores
+        SentimentResponse with:
+        - sentiment: Text label ("negative", "neutral", "positive")
+        - sentiment_score: Numeric label (-1, 0, 1) for easy integration
+        - confidence: Probability score (0-1)
+        - scores: Detailed probability distribution
     """
     try:
         # Tokenize input
@@ -106,8 +118,12 @@ async def analyze_sentiment(request: SentimentRequest):
         sentiment = labels[max_idx]
         confidence = float(predictions[0][max_idx])
         
+        # Map to numeric score for integration
+        sentiment_score = SENTIMENT_MAPPING[sentiment]
+        
         return SentimentResponse(
             sentiment=sentiment,
+            sentiment_score=sentiment_score,
             confidence=confidence,
             scores=scores_dict
         )
@@ -122,7 +138,9 @@ async def health_check():
         "status": "healthy",
         "model_path": str(model_path),
         "device": str(device),
-        "model_loaded": model is not None
+        "model_loaded": model is not None,
+        "model_type": "finbert-augmented-v1",
+        "sentiment_mapping": SENTIMENT_MAPPING
     }
 
 @app.get("/")
@@ -131,6 +149,11 @@ async def root():
     return {
         "name": "FinBERT Sentiment Analysis API",
         "version": "1.0.0",
+        "sentiment_mapping": {
+            "negative": -1,
+            "neutral": 0,
+            "positive": 1
+        },
         "endpoints": {
             "POST /analyze-sentiment": "Analyze sentiment of financial text",
             "GET /health": "Health check",
