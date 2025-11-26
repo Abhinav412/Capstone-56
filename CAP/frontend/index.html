@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Analysis & Prediction System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Financial Analysis & Prediction System</h1>
+            <p class="subtitle">AI-Powered Stock Analysis with Fundamental, Technical, and Sentiment Analysis</p>
+            <div class="auth-header" id="authHeader" style="display: none;">
+                <div class="profile-dropdown">
+                    <div class="profile-photo" id="profilePhoto" onclick="toggleProfileDropdown()">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23667eea'/%3E%3Ctext x='20' y='28' font-size='20' fill='white' text-anchor='middle' font-weight='bold'%3E%3C/ttext%3E%3C/svg%3E" alt="Profile" id="profileImage">
+                        <span class="profile-initials" id="profileInitials"></span>
+                    </div>
+                    <div class="profile-dropdown-menu" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="profile-name" id="profileName"></div>
+                            <div class="profile-email" id="profileEmail"></div>
+                            <div class="profile-type" id="profileType"></div>
+                        </div>
+                        <div class="profile-divider"></div>
+                        <button class="profile-menu-item" onclick="logout()">
+                            <span class="menu-icon">🚪</span>
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Login/Register Section -->
+        <section class="card" id="authSection">
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">Login</button>
+                <button class="tab-btn" data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>Login to Your Account</h2>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginUsername">Username *</label>
+                        <input type="text" id="loginUsername" name="username" required 
+                               placeholder="Enter your username" autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password *</label>
+                        <input type="password" id="loginPassword" name="password" required 
+                               placeholder="Enter your password" autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn-primary">Login</button>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form" style="display: none;">
+                <h2>Create New Account</h2>
+                <form id="registerFormElement">
+                    <div class="form-group">
+                        <label for="regUsername">Username *</label>
+                        <input type="text" id="regUsername" name="username" required 
+                               placeholder="Choose a username" autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email *</label>
+                        <input type="email" id="regEmail" name="email" required 
+                               placeholder="Enter your email" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password *</label>
+                        <input type="password" id="regPassword" name="password" required 
+                               placeholder="Choose a password" autocomplete="new-password">
+                        <small>Minimum 6 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="regUserType">User Type *</label>
+                        <select id="regUserType" name="user_type" required>
+                            <option value="investor">Investor</option>
+                            <option value="company">Company</option>
+                            <option value="portfolio_manager">Portfolio Manager</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Register</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Main Application (shown after login) -->
+        <div id="mainApp" style="display: none;">
+            <div class="mode-selector" id="modeSelector" style="display: none;">
+                <button class="mode-btn active" data-mode="prediction">Run Prediction</button>
+                <button class="mode-btn" data-mode="insight">Insights Only</button>
+            </div>
+
+            <!-- Prediction Form -->
+            <section class="card" id="predictionForm">
+                <h2>Company Analysis Request</h2>
+                <p class="user-type-display" id="userTypeDisplay"></p>
+                
+                <form id="analysisForm">
+                    <div class="form-group">
+                        <label for="companyName">Company Name *</label>
+                        <input type="text" id="companyName" name="companyName" required 
+                               placeholder="e.g., 20 Microns" autocomplete="off">
+                        <small>Start typing to see suggestions</small>
+                        <div id="companySuggestions" class="suggestions"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="companySymbol">Stock Symbol *</label>
+                        <input type="text" id="companySymbol" name="companySymbol" required
+                               placeholder="e.g., 20MICRONS.NS">
+                        <small>Required: NSE format (SYMBOL.NS) or BSE format (SYMBOL.BO)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horizon">Prediction Horizon *</label>
+                        <select id="horizon" name="horizon" required>
+                            <option value="lt15">Short-term (< 15 days)</option>
+                            <option value="lt30" selected>Medium-term (< 30 days)</option>
+                            <option value="1y">Long-term (1 year)</option>
+                        </select>
+                        <small>Select the time frame for your prediction</small>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <span class="btn-text">Analyze Company</span>
+                        <span class="btn-loader" style="display: none;">⏳ Analyzing...</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Insights Form (Company users) -->
+            <section class="card" id="insightsFormCard" style="display: none;">
+                <h2>Financial Ratio Insight Builder</h2>
+                <p class="user-type-display">Provide your current fundamentals to receive targeted recommendations.</p>
+
+                <form id="insightsForm">
+                    <div class="form-group">
+                        <label for="insightsCompanyName">Company Name *</label>
+                        <input type="text" id="insightsCompanyName" name="insightsCompanyName" required
+                               placeholder="e.g., Your Company Ltd">
+                    </div>
+
+                    <div class="insights-grid">
+                        <div class="form-group">
+                            <label>Net Working Capital ( Incl. Def. Tax) *</label>
+                            <input type="number" step="any" required data-insight-key="Net Working Capital ( Incl. Def. Tax)">
+                        </div>
+                        <div class="form-group">
+                            <label>Current Ratio *</label>
+                            <input type="number" step="any" required data-insight-key="Current Ratio">
+                        </div>
+                        <div class="form-group">
+                            <label>Interest Cover Ratio *</label>
+                            <input type="number" step="any" required data-insight-key="Interest Cover Ratio">
+                        </div>
+                        <div class="form-group">
+                            <label>ROCE (%) *</label>
+                            <input type="number" step="any" required data-insight-key="ROCE (%)">
+                        </div>
+                        <div class="form-group">
+                            <label>PBIDTM (%) *</label>
+                            <input type="number" step="any" required data-insight-key="PBIDTM (%)">
+                        </div>
+                        <div class="form-group">
+                            <label>PBITM (%) *</label>
+                            <input type="number" step="any" required data-insight-key="PBITM (%)">
+                        </div>
+                        <div class="form-group">
+                            <label>APATM (%) *</label>
+                            <input type="number" step="any" required data-insight-key="APATM (%)">
+                        </div>
+                        <div class="form-group">
+                            <label>RONW (%) *</label>
+                            <input type="number" step="any" required data-insight-key="RONW (%)">
+                        </div>
+                        <div class="form-group">
+                            <label>ROE (X) *</label>
+                            <input type="number" step="any" required data-insight-key="ROE (X)">
+                        </div>
+                        <div class="form-group">
+                            <label>EPS (annualised) (Unit Curr) *</label>
+                            <input type="number" step="any" required data-insight-key="EPS (annualised) (Unit Curr)">
+                        </div>
+                        <div class="form-group">
+                            <label>Cash Flow From Operating Activities *</label>
+                            <input type="number" step="any" required data-insight-key="Cash Flow From Operating Activities">
+                        </div>
+                        <div class="form-group">
+                            <label>Debt-Equity Ratio *</label>
+                            <input type="number" step="any" required data-insight-key="Debt-Equity Ratio">
+                        </div>
+                        <div class="form-group">
+                            <label>Long Term Debt-Equity Ratio *</label>
+                            <input type="number" step="any" required data-insight-key="Long Term Debt-Equity Ratio">
+                        </div>
+                        <div class="form-group">
+                            <label>Price to Book Value ( P/BV) *</label>
+                            <input type="number" step="any" required data-insight-key="Price to Book Value ( P/BV)">
+                        </div>
+                        <div class="form-group">
+                            <label>Price Earning (P/E) *</label>
+                            <input type="number" step="any" required data-insight-key="Price Earning (P/E)">
+                        </div>
+                        <div class="form-group">
+                            <label>EV/EBIDTA *</label>
+                            <input type="number" step="any" required data-insight-key="EV/EBIDTA">
+                        </div>
+                        <div class="form-group">
+                            <label>Market Cap/Sales *</label>
+                            <input type="number" step="any" required data-insight-key="Market Cap/Sales">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="insightsSubmitBtn">
+                        <span class="btn-text">Generate Insights</span>
+                        <span class="btn-loader" style="display: none;">⚙️ Thinking...</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Results Section -->
+            <section class="card" id="resultsSection" style="display: none;">
+                <div class="results-header">
+                    <h2>Analysis Results</h2>
+                    <button class="btn-secondary" onclick="resetAnalysis()">New Analysis</button>
+                </div>
+
+                <!-- Prediction Summary -->
+                <div class="prediction-summary" id="predictionSummary"></div>
+
+                <!-- LM Explanation -->
+                <div class="lm-explanation" id="lmExplanation"></div>
+
+                <!-- Detailed Analysis -->
+                <div class="analysis-details" id="analysisDetails"></div>
+
+                <!-- XAI Insights -->
+                <div class="xai-insights" id="xaiInsights"></div>
+            </section>
+
+            <!-- Insights Results -->
+            <section class="card" id="insightsResultsSection" style="display: none;">
+                <div class="results-header">
+                    <h2>Insight Summary</h2>
+                    <button class="btn-secondary" onclick="resetInsights()">New Insight</button>
+                </div>
+                <div class="insights-summary" id="insightsSummary"></div>
+                <div class="insights-lists">
+                    <div class="insights-column" id="insightsStrengths"></div>
+                    <div class="insights-column" id="insightsImprovements"></div>
+                </div>
+                <div class="insights-actions" id="insightsRecommendations"></div>
+                <div class="lm-explanation" id="insightsLmExplanation"></div>
+            </section>
+
+            <!-- Error Section -->
+            <section class="card error-card" id="errorSection" style="display: none;">
+                <h2>⚠️ Error</h2>
+                <p id="errorMessage"></p>
+                <button class="btn-secondary" onclick="dismissError()">Close</button>
+            </section>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
